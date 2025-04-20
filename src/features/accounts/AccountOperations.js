@@ -10,11 +10,14 @@ function AccountOperations() {
   const [currency, setCurrency] = useState("USD");
 
   const dispatch = useDispatch();
+  // const account = useSelector((store) => store.account);
   const {
     loan: currentLoan,
     loanPurpose: currentLoanPurpose,
-    ablance,
+    balance,
   } = useSelector((store) => store.account);
+
+  console.log(balance);
 
   function handleDeposit() {
     if (!depositAmount) return;
@@ -23,6 +26,7 @@ function AccountOperations() {
     console.log("Congratulations! You have deposited!", depositAmount);
     setDepositAmount("");
     console.log(depositAmount, "Deposite cleared!");
+    // console.log(balance);
   }
 
   function handleWithdrawal() {
@@ -30,6 +34,7 @@ function AccountOperations() {
 
     dispatch(withdraw(withdrawalAmount));
     setWithdrawalAmount("");
+    // console.log(balance);
   }
 
   function handleRequestLoan() {
@@ -67,7 +72,6 @@ function AccountOperations() {
 
           <button onClick={handleDeposit}>Deposit {depositAmount}</button>
         </div>
-
         <div>
           <label>Withdraw</label>
           <input
@@ -79,7 +83,6 @@ function AccountOperations() {
             Withdraw {withdrawalAmount}
           </button>
         </div>
-
         <div>
           <label>Request loan</label>
           <input
@@ -95,7 +98,6 @@ function AccountOperations() {
           />
           <button onClick={handleRequestLoan}>Request loan</button>
         </div>
-
         {currentLoan > 0 && (
           <div>
             <span>Pay back ${currentLoan}</span>
