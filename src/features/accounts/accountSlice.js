@@ -6,38 +6,14 @@ const initialState = {
   loanPurpose: "",
   isLoading: false,
 };
-/*
-const accountSlice = createSlice({
-  name: "account",
-  initialState,
-  reducers: {
-    deposit(state, action) {
-      state.balance += action.payload;
-    },
-    withdraw(state, action) {
-      state.balance -= action.payload;
-    },
-    requestLoan(state, action) {
-      if (state.loan > 0) return;
 
-      state.loan = action.payload.amount;
-      state.balance += action.payload.amount;
-      state.loanPurpose = action.payload.loanPurpose;
-    },
-    payLoan(state, action) {
-      state.loan = 0;
-      state.loanPurpose = "";
-      state.balance -= state.loan;
-    },
-  },
-});
-*/
 const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
     deposit(state, action) {
       state.balance += action.payload;
+      state.isLoading = false;
     },
     withdraw(state, action) {
       state.balance -= action.payload;
@@ -54,16 +30,36 @@ const accountSlice = createSlice({
         state.loanPurpose = action.payload.purpose;
       },
     },
-    payLoan(state, action) {
+    payLoan(state) {
       state.balance -= state.loan;
       state.loan = 0;
       state.loanPurpose = "";
+    },
+    convertingCurrency(state) {
+      state.isLoading = true;
     },
   },
 });
 
 console.log(accountSlice);
-export const { deposit, withdraw, requestLoan, payLoan } = accountSlice.actions;
+export const { withdraw, requestLoan, payLoan } = accountSlice.actions;
 
-console.log(requestLoan(50000, "Carrr"));
+export function deposit(amount, currency) {
+  if (currency === "USD") return { type: "account/deposit", payload: amount };
+
+  return async function (dispatch, getState) {
+    dispatch({ type: "account/convertingCurrency" });
+    // API call
+    const res = await fetch(
+      `https://api.frankfurter.dev/v1/latest?base=${currency}&symbols=${"USD"}`
+    );
+    const data = await res.json();
+    // console.log(data);
+    const converted = amount * data.rates.USD;
+
+    // dispatch the action
+    dispatch({ type: "account/deposit", payload: converted });
+  };
+}
+
 export default accountSlice.reducer;
